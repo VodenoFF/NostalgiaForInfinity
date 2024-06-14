@@ -68,7 +68,7 @@ class NostalgiaForInfinityX3(IStrategy):
   INTERFACE_VERSION = 3
 
   def version(self) -> str:
-    return "v13.1.835"
+    return "v13.1.839"
 
   stoploss = -0.99
 
@@ -12352,6 +12352,37 @@ class NostalgiaForInfinityX3(IStrategy):
         | (df["close"] < df["res_hlevel_1d"])
         | (((df["close"] - df["low_min_6_1d"]) / df["low_min_6_1d"]) < (df["hl_pct_change_6_1d"] * 0.38))
       )
+      & (
+        (df["change_pct_1d"] > -0.04)
+        | (df["change_pct_1d"].shift(288) < 0.04)
+        | (df["change_pct_1h"] > -0.01)
+        | (df["not_downtrend_15m"])
+        | (df["rsi_14"] > df["rsi_14"].shift(12))
+        | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+        | (df["rsi_3"] > 20.0)
+        | (df["rsi_3_15m"] > 12.0)
+        | (df["rsi_14_1h"] < 46.0)
+        | (df["rsi_14_4h"] < 46.0)
+        | (df["r_480_4h"] < -35.0)
+        | (df["close"] < df["res_hlevel_1h"])
+        | (df["close"] < df["res_hlevel_4h"])
+        | (((df["close"] - df["low_min_48_1h"]) / df["low_min_48_1h"]) < (df["hl_pct_change_48_1h"] * 0.38))
+      )
+      & (
+        (df["change_pct_1h"] > -0.03)
+        | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+        | (df["rsi_3_1h"] > 36.0)
+        | (df["rsi_14_15m"] < 30.0)
+        | (df["rsi_14_1h"] < 46.0)
+        | (df["rsi_14_max_6_1h"] < 70.0)
+        | (df["cti_20_1h"] < 0.5)
+        | (df["rsi_14_4h"] < 50.0)
+        | (df["rsi_14_1d"] < 50.0)
+        | (df["close"] < df["res_hlevel_1h"])
+        | (df["close"] < df["res_hlevel_4h"])
+        | (df["close"] < df["res_hlevel_1d"])
+        | (((df["close"] - df["low_min_48_1h"]) / df["low_min_48_1h"]) < (df["hl_pct_change_48_1h"] * 0.38))
+      )
     )
 
     df["global_protections_long_dump"] = (
@@ -14714,6 +14745,14 @@ class NostalgiaForInfinityX3(IStrategy):
         | (df["close"] > df["sup_level_1h"])
         | (df["close"] > df["sup_level_4h"])
         | (df["close"] > (df["high_max_6_1d"] * 0.40))
+      )
+      & (
+        (df["not_downtrend_1h"])
+        | (df["not_downtrend_4h"])
+        | (df["rsi_3_1h"] > 2.0)
+        | (df["rsi_3_4h"] > 16.0)
+        | (df["close"] > df["sup_level_1h"])
+        | (df["close"] > df["sup_level_4h"])
       )
     )
 
@@ -20335,6 +20374,16 @@ class NostalgiaForInfinityX3(IStrategy):
             | (df["rsi_14_4h"] < 40.0)
             | (df["rsi_14_1d"] < 46.0)
             | (df["r_480_1h"] < -35.0)
+          )
+          long_entry_logic.append(
+            (df["rsi_14"] < 40.0)
+            | (df["rsi_14_15m"] < 40.0)
+            | (df["rsi_14_1h"] < 46.0)
+            | (df["rsi_14_max_6_1h"] < 70.0)
+            | (df["cti_20_1h"] < 0.5)
+            | (df["rsi_14_4h"] < 46.0)
+            | (df["rsi_14_1d"] < 46.0)
+            | (df["close"] < df["res_hlevel_1h"])
           )
 
           # Logic
