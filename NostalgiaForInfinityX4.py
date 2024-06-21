@@ -68,7 +68,7 @@ class NostalgiaForInfinityX4(IStrategy):
   INTERFACE_VERSION = 3
 
   def version(self) -> str:
-    return "v14.1.851"
+    return "v14.1.859"
 
   stoploss = -0.99
 
@@ -88,7 +88,7 @@ class NostalgiaForInfinityX4(IStrategy):
   btc_info_timeframes = ["5m", "15m", "1h", "4h", "1d"]
 
   # Backtest Age Filter emulation
-  has_bt_agefilter = False
+  has_bt_agefilter = True
   bt_min_age_days = 3
 
   # Exchange Downtime protection
@@ -3116,6 +3116,8 @@ class NostalgiaForInfinityX4(IStrategy):
     df["cti_20_1d"] = df["cti_20_1d"].astype(np.float64).replace(to_replace=[np.nan, None], value=(0.0))
     df["r_480_1h"] = df["r_480_1h"].astype(np.float64).replace(to_replace=[np.nan, None], value=(-50.0))
     df["r_480_4h"] = df["r_480_4h"].astype(np.float64).replace(to_replace=[np.nan, None], value=(-50.0))
+    df["rsi_14_1h"] = df["rsi_14_1h"].astype(np.float64).replace(to_replace=[np.nan, None], value=(50.0))
+    df["rsi_14_4h"] = df["rsi_14_4h"].astype(np.float64).replace(to_replace=[np.nan, None], value=(50.0))
     df["rsi_14_1d"] = df["rsi_14_1d"].astype(np.float64).replace(to_replace=[np.nan, None], value=(50.0))
 
     # Global protections
@@ -12422,6 +12424,47 @@ class NostalgiaForInfinityX4(IStrategy):
         | (df["close"] > (df["high_max_12_1d"] * 0.70))
         | (((df["close"] - df["low_min_48_1h"]) / df["low_min_48_1h"]) < (df["hl_pct_change_48_1h"] * 0.38))
       )
+      & (
+        (df["change_pct_1d"] > -0.06)
+        | (df["change_pct_1d"].shift(288) < 0.16)
+        | (df["not_downtrend_1h"])
+        | (df["rsi_14"] > df["rsi_14"].shift(12))
+        | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+        | (df["rsi_3_1h"] > 16.0)
+        | (df["rsi_14_4h"] < 46.0)
+        | (df["r_14_1h"] > -90.0)
+        | (df["r_480_1h"] < -35.0)
+        | (df["close"] > df["sup_level_1h"])
+        | (df["close"] > df["sup_level_4h"])
+      )
+      & (
+        (df["change_pct_1d"] > -0.03)
+        | (df["change_pct_1d"].shift(288) < 0.03)
+        | (df["rsi_14"] > df["rsi_14"].shift(12))
+        | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+        | (df["rsi_3_15m"] > 20.0)
+        | (df["rsi_14_15m"] < 40.0)
+        | (df["rsi_14_1h"] < 50.0)
+        | (df["rsi_14_4h"] < 50.0)
+        | (df["rsi_14_1d"] < 50.0)
+        | (df["r_480_4h"] < -20.0)
+        | (df["close"] < df["res_hlevel_1h"])
+        | (df["sma_200_dec_48_1h"] == False)
+      )
+      & (
+        (df["change_pct_4h"] > -0.01)
+        | (df["change_pct_1h"] > -0.01)
+        | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+        | (df["rsi_3_15m"] > 36.0)
+        | (df["rsi_14_1h"] < 40.0)
+        | (df["rsi_14_4h"] < 50.0)
+        | (df["rsi_14_1d"] < 70.0)
+        | (df["r_480_1h"] < -35.0)
+        | (df["close"] > df["sup_level_1h"])
+        | (df["close"] < df["res_hlevel_1d"])
+        | (df["hl_pct_change_6_1d"] < 0.9)
+        | (((df["close"] - df["low_min_48_1h"]) / df["low_min_48_1h"]) < (df["hl_pct_change_48_1h"] * 0.38))
+      )
     )
 
     df["global_protections_long_dump"] = (
@@ -14877,6 +14920,30 @@ class NostalgiaForInfinityX4(IStrategy):
         | (df["ema_200_dec_24_4h"] == False)
         | (df["close"] > (df["high_max_12_1d"] * 0.80))
       )
+      & (
+        (df["not_downtrend_1h"])
+        | (df["not_downtrend_4h"])
+        | (df["rsi_3_15m"] > 8.0)
+        | (df["rsi_3_1h"] > 8.0)
+        | (df["rsi_3_4h"] > 8.0)
+        | (df["r_480_1h"] > -90.0)
+        | (df["close"] > df["sup_level_1h"])
+        | (df["close"] > df["sup_level_4h"])
+        | (df["ema_200_dec_48_1h"] == False)
+      )
+      & (
+        (df["not_downtrend_1h"])
+        | (df["not_downtrend_4h"])
+        | (df["is_downtrend_3_4h"] == False)
+        | (df["not_downtrend_1d"])
+        | (df["rsi_3_15m"] > 12.0)
+        | (df["rsi_3_1h"] > 12.0)
+        | (df["rsi_3_4h"] > 16.0)
+        | (df["r_480_1h"] > -80.0)
+        | (df["close"] > df["sup_level_1h"])
+        | (df["close"] > df["sup_level_4h"])
+        | (df["close"] > df["sup_level_1d"])
+      )
     )
 
     # Global protections
@@ -15523,6 +15590,12 @@ class NostalgiaForInfinityX4(IStrategy):
     for enabled_long_entry_signal in self.long_entry_signal_params:
       index = int(enabled_long_entry_signal.split("_")[3])
       item_buy_protection_list = [True]
+      if not self.config["runmode"].value in ("live", "dry_run"):
+          if self.has_bt_agefilter:
+            item_buy_protection_list.append(df["bt_agefilter_ok"])
+      else:
+        if self.has_downtime_protection:
+          item_buy_protection_list.append(df["live_data_ok"])
       if self.long_entry_signal_params[f"{enabled_long_entry_signal}"]:
         # Long Entry Conditions Starts Here
         # -----------------------------------------------------------------------------------------
@@ -16214,6 +16287,20 @@ class NostalgiaForInfinityX4(IStrategy):
             | (df["sma_200_dec_48_1h"] == False)
             | (df["ema_200_dec_24_4h"] == False)
             | (df["ema_200_dec_4_1d"] == False)
+          )
+          long_entry_logic.append(
+            (df["change_pct_4h"] > -0.01)
+            | (df["change_pct_1h"] > -0.01)
+            | (df["rsi_14_15m"] > df["rsi_14_15m"].shift(12))
+            | (df["rsi_3_15m"] > 36.0)
+            | (df["rsi_14_1h"] < 40.0)
+            | (df["rsi_14_4h"] < 50.0)
+            | (df["rsi_14_1d"] < 70.0)
+            | (df["r_480_1h"] < -35.0)
+            | (df["close"] > df["sup_level_1h"])
+            | (df["close"] < df["res_hlevel_1d"])
+            | (df["hl_pct_change_6_1d"] < 0.9)
+            | (((df["close"] - df["low_min_48_1h"]) / df["low_min_48_1h"]) < (df["hl_pct_change_48_1h"] * 0.38))
           )
 
           # Logic
@@ -21914,6 +22001,12 @@ class NostalgiaForInfinityX4(IStrategy):
     for enabled_short_entry_signal in self.short_entry_signal_params:
       short_index = int(enabled_short_entry_signal.split("_")[3])
       item_short_buy_protection_list = [True]
+      if not self.config["runmode"].value in ("live", "dry_run"):
+          if self.has_bt_agefilter:
+            item_short_buy_protection_list.append(df["bt_agefilter_ok"])
+      else:
+        if self.has_downtime_protection:
+          item_short_buy_protection_list.append(df["live_data_ok"])
       if self.short_entry_signal_params[f"{enabled_short_entry_signal}"]:
         # Short Entry Conditions Starts Here
         # -----------------------------------------------------------------------------------------
