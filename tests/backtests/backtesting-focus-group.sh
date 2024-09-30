@@ -28,7 +28,7 @@
 # export EXCHANGE=binance
 # export TRADING_MODE=spot
 # export STRATEGY_VERSION=v13-0-442 # dont use . in version there is a bug
-# export STRATEGY_NAME=NostalgiaForInfinityX4
+# export STRATEGY_NAME=NostalgiaForInfinityX5
 # export TIMERANGE=20230801-
 
 date() {
@@ -66,7 +66,7 @@ fi
 # Strategy Config
 STRATEGY_NAME_CONFIG=""
 if [[ -z ${STRATEGY_NAME} ]]; then
-  STRATEGY_NAME_CONFIG="NostalgiaForInfinityX4"
+  STRATEGY_NAME_CONFIG="NostalgiaForInfinityX5"
 else
   STRATEGY_NAME_CONFIG=${STRATEGY_NAME}
 fi
@@ -113,7 +113,7 @@ for TRADING_MODE_RUN in ${TRADING_MODE_CONFIG[*]}; do
         -c $EXCHANGE_CONFIG_FILE \
         --log-file user_data/logs/backtesting-$STRATEGY_NAME_CONFIG-$STRATEGY_VERSION_CONFIG-$EXCHANGE_CONFIG-$TRADING_MODE_CONFIG-focus-group-$TIMERANGE.log \
         --export-filename user_data/backtest_results/$STRATEGY_NAME_CONFIG-$STRATEGY_VERSION_CONFIG-$EXCHANGE_CONFIG-$TRADING_MODE_CONFIG-focus-group-$TIMERANGE.json \
-        --cache none --breakdown week \
+        --cache none --breakdown day \
         --timeframe-detail 1m
       echo -e "\n\`\`\`\n\n---\n\n"
 
@@ -124,7 +124,7 @@ for TRADING_MODE_RUN in ${TRADING_MODE_CONFIG[*]}; do
         -c $EXCHANGE_CONFIG_FILE \
         --log-file user_data/logs/backtesting-$STRATEGY_NAME_CONFIG-$STRATEGY_VERSION_CONFIG-$EXCHANGE_CONFIG-$TRADING_MODE_CONFIG-focus-group-$TIMERANGE.log \
         --export-filename user_data/backtest_results/$STRATEGY_NAME_CONFIG-$STRATEGY_VERSION_CONFIG-$EXCHANGE_CONFIG-$TRADING_MODE_CONFIG-focus-group-$TIMERANGE.json \
-        --cache none --breakdown week \
+        --cache none --breakdown day \
         --timeframe-detail 1m
 
       echo -e "\n### ${EXCHANGE_CONFIG} FOCUS GROUP ANALYSIS" | tr '[a-z]' '[A-Z]'
